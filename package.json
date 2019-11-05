@@ -1,0 +1,23 @@
+{
+  "name": "jobtrackerserver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FanciestW/JobTrackerServer.git"
+  },
+  "author": "William Lin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FanciestW/JobTrackerServer/issues"
+  },
+  "homepage": "https://github.com/FanciestW/JobTrackerServer#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
