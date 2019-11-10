@@ -1,14 +1,24 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const path = require('path');
 const mongoose = require('mongoose');
+const UserModel = require('./models/User');
 require('dotenv').config();
 const app = express();
+app.use(bodyParser.urlencoded());
+app.use(bodyParser.json());
 
 const mongodbUri = process.env.MONGO_URI || 'mongodb://localhost:27017/test';
 const mongodbOptions = {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 };
+
+const db = mongoose.connection;
+db.once('open', async () => {
+    console.log('The database is connected');
+});
+
 mongoose.connect(mongodbUri, mongodbOptions, (err) => {
     if (err) {
         console.error(`Unable to connecto MongoDB with error: ${err}`);
@@ -27,4 +37,31 @@ app.get('/api', (req, res) => {
     res.sendStatus(404);
 });
 
-app.listen(8080, () => console.log('Server Online'));
+app.get('/api/users', (req, res) => {
+    UserModel.find({}, (err, data) => {
+        if (err) {
+            console.error(`An error occurred: ${err}`);
+        } else {
+            return res.status(200).send(data);
+        }
+    });
+});
+
+app.post('/api/user', (req, res) => {
+    try {
+        const { name, email, username } = req.body;
+        const newUser = new UserModel({ name, email, username });
+        newUser.save((err) => {
+            if (err) res.status(500).send('Unable to save new user');
+            else res.sendStatus(200);
+        });
+    } catch (err) {
+        if (err instanceof TypeError) {
+            return res.status(400).send(JSON.stringify('Received bad request data.'));
+        } else {
+            return res.status(400).send(JSON.stringify(err.message));
+        }
+    }
+});
+
+app.listen(process.env.PORT || 8080, () => console.log(`Server Online on Port ${process.env.PORT || 8080}`));
