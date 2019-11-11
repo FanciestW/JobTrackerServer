@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const UserModel = require('./models/User');
 require('dotenv').config();
 const app = express();
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 const mongodbUri = process.env.MONGO_URI || 'mongodb://localhost:27017/test';
@@ -13,12 +13,6 @@ const mongodbOptions = {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 };
-
-const db = mongoose.connection;
-db.once('open', async () => {
-    console.log('The database is connected');
-});
-
 mongoose.connect(mongodbUri, mongodbOptions, (err) => {
     if (err) {
         console.error(`Unable to connecto MongoDB with error: ${err}`);
