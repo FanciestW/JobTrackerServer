@@ -22,4 +22,4 @@ function consoleError(message) {
     console.log(chalk.red(message));
 }
 
-module.exports = { handleServerError, handleClientError, };
+module.exports = { handleServerError, handleClientError, consoleError };

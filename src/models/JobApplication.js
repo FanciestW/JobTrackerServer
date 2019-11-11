@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const { UserSchema } = require('./User');
 
 const JobApplicationSchema = new Schema({
-    userId: String,
+    jobAppId: Schema.ObjectId,
+    userId: { type: Schema.Types.ObjectId, ref: UserSchema },
     title: String,
     company: String,
     status: String,
@@ -11,4 +13,4 @@ const JobApplicationSchema = new Schema({
     priority: String,
 });
 
-module.exports = mongoose.model('JobApplication', JobApplicationSchema);
+module.exports = { JobApplication: mongoose.model('JobApplication', JobApplicationSchema), JobApplicationSchema, };

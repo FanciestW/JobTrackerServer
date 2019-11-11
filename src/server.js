@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const mongoose = require('mongoose');
-const UserModel = require('./models/User');
+const { User } = require('./models/User');
 require('dotenv').config();
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -32,7 +32,7 @@ app.get('/api', (req, res) => {
 });
 
 app.get('/api/users', (req, res) => {
-    UserModel.find({}, (err, data) => {
+    User.find({}, (err, data) => {
         if (err) {
             console.error(`An error occurred: ${err}`);
         } else {
@@ -44,7 +44,7 @@ app.get('/api/users', (req, res) => {
 app.post('/api/user', (req, res) => {
     try {
         const { name, email, username } = req.body;
-        const newUser = new UserModel({ name, email, username });
+        const newUser = new User({ name, email, username, createdAt: new Date(), });
         newUser.save((err) => {
             if (err) res.status(500).send('Unable to save new user');
             else res.sendStatus(200);
