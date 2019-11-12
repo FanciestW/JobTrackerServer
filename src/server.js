@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const mongoose = require('mongoose');
 const { User } = require('./models/User');
+const ErrorHandler = require('./utils/ErrorHandler');
 require('dotenv').config();
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -44,7 +45,7 @@ app.get('/api/users', (req, res) => {
 app.post('/api/user', (req, res) => {
     try {
         const { name, email, username } = req.body;
-        const newUser = new User({ name, email, username, createdAt: new Date(), });
+        const newUser = new User({ name, email, username, });
         newUser.save((err) => {
             if (err) res.status(500).send('Unable to save new user');
             else res.sendStatus(200);
@@ -54,6 +55,23 @@ app.post('/api/user', (req, res) => {
             return res.status(400).send(JSON.stringify('Received bad request data.'));
         } else {
             return res.status(400).send(JSON.stringify(err.message));
+        }
+    }
+});
+
+app.post('/api/signup', (req, res) => {
+    try {
+        const { name, email, username } = req.body;
+        const newUser = new User({ name, email, username, });
+        newUser.save((err) => {
+            if (err) return ErrorHandler.handleServerError(req, res, 500, err, err.message);
+            else return res.sendStatus(200);
+        });
+    } catch (err) {
+        if (err instanceof TypeError) {
+            return ErrorHandler.handleClientError(req, res, 400, 'Bad Request', err.message);
+        } else {
+            return ErrorHandler.handleServerError(req, res, 500, 'Error Occurred', err.message);
         }
     }
 });
