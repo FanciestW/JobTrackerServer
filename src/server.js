@@ -2,12 +2,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const mongoose = require('mongoose');
-const { User } = require('./models/User');
-const ErrorHandler = require('./utils/ErrorHandler');
+const { handleClientError, handleServerError } = require('./utils/ErrorHandler');
 require('dotenv').config();
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+app.use('/api/users', require('./routes/User'));
 
 const mongodbUri = process.env.MONGO_URI || 'mongodb://localhost:27017/test';
 const mongodbOptions = {
@@ -29,50 +30,16 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api', (req, res) => {
-    res.sendStatus(404);
+    return handleClientError(req, res, 400, 'Bad request', 'Please try again');
 });
 
-app.get('/api/users', (req, res) => {
-    User.find({}, (err, data) => {
-        if (err) {
-            console.error(`An error occurred: ${err}`);
-        } else {
-            return res.status(200).send(data);
-        }
-    });
-});
-
-app.post('/api/user', (req, res) => {
-    try {
-        const { name, email, username } = req.body;
-        const newUser = new User({ name, email, username, });
-        newUser.save((err) => {
-            if (err) res.status(500).send('Unable to save new user');
-            else res.sendStatus(200);
-        });
-    } catch (err) {
-        if (err instanceof TypeError) {
-            return res.status(400).send(JSON.stringify('Received bad request data.'));
-        } else {
-            return res.status(400).send(JSON.stringify(err.message));
-        }
-    }
-});
-
-app.post('/api/signup', (req, res) => {
-    try {
-        const { name, email, username } = req.body;
-        const newUser = new User({ name, email, username, });
-        newUser.save((err) => {
-            if (err) return ErrorHandler.handleServerError(req, res, 500, err, err.message);
-            else return res.sendStatus(200);
-        });
-    } catch (err) {
-        if (err instanceof TypeError) {
-            return ErrorHandler.handleClientError(req, res, 400, 'Bad Request', err.message);
-        } else {
-            return ErrorHandler.handleServerError(req, res, 500, 'Error Occurred', err.message);
-        }
+app.get('/status', (req, res) => {
+    if (mongoose.connection.readyState === 1) {
+        return res.sendStatus(200).send(JSON.stringify({
+            message: 'Server is online',
+        }));
+    } else {
+        return handleServerError(req, res, 500, 'Server is not ready', 'Please try again later.');
     }
 });
 
