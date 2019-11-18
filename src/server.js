@@ -8,7 +8,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use('/api/users', require('./routes/User'));
+app.use('/api/user', require('./routes/User'));
 
 const mongodbUri = process.env.MONGO_URI || 'mongodb://localhost:27017/test';
 const mongodbOptions = {
