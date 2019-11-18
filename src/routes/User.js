@@ -97,9 +97,12 @@ router.post('/login', async (req, res) => {
         const { email, password, } = req.body;
         const userDoc = await User.findOne({ email, });
         const isPasswordValid = await bcrypt.compare(password, userDoc.passwordDigest);
+
+        // Randomly wait a set time to help prevent user enumeration.
         if (crypto.randomBytes(1).readUInt8() % 2 === 0) {
-            // TODO::Add time to response to stop user enumeration.
+            await new Promise((resolve) => { setTimeout(resolve, 300); });
         }
+
         if (isPasswordValid) {
             // TODO::Create user session and send back to user.
             return res.status(200).send('Login Success');
