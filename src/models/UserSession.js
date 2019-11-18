@@ -3,8 +3,8 @@ const Schema = mongoose.Schema;
 const { UserSchema } = require('./User');
 
 const UserSessionSchema = Schema({
-    sessionId: { type: String, unique: true, required: true },
-    userId: { type: Schema.Types.ObjectId, ref: UserSchema, required: true },
+    sid: { type: String, unique: true, required: true },
+    uid: { type: Schema.Types.ObjectId, ref: UserSchema, required: true },
     createdAt: { type: Date, default: Date.now(), required: true },
     expiresAt: { type: Date, expires: 3600, default: Date.now() + 3600 * 1000, required: true },
 });
