@@ -13,6 +13,8 @@ app.use('/api/user', require('./routes/User'));
 const mongodbUri = process.env.MONGO_URI || 'mongodb://localhost:27017/test';
 const mongodbOptions = {
     useNewUrlParser: true,
+    useFindAndModify: false,
+    useCreateIndex: true,
     useUnifiedTopology: true,
 };
 mongoose.connect(mongodbUri, mongodbOptions, (err) => {
