@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { User } = require('../models/User');
-const { handleClientError, handleServerError } = require('../utils/ErrorHandler');
 const bcrypt = require('bcrypt');
 const uniqid = require('uniqid');
+const crypto = require('crypto');
+const { User } = require('../models/User');
+const { handleClientError, handleServerError } = require('../utils/ErrorHandler');
 
 const saltRounds = 12;
 
@@ -76,7 +77,7 @@ router.post('/signup', async (req, res) => {
         } while (await User.countDocuments({ uid, }) > 0);
         
         const passwordDigest = await bcrypt.hash(password, saltRounds);
-        const newUser = new User({ firstName, lastName, email, username, passwordDigest, });
+        const newUser = new User({ uid, firstName, lastName, email, username, passwordDigest, });
         newUser.save((err) => {
             if (err) return handleServerError(req, res, 500, err, err.message);
             else return res.sendStatus(200);
@@ -91,8 +92,27 @@ router.post('/signup', async (req, res) => {
     }
 });
 
-router.post('/login', (req, res) => {
-    // TODO::Implement User login.
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password, } = req.body;
+        const userDoc = await User.findOne({ email, });
+        const isPasswordValid = await bcrypt.compare(password, userDoc.passwordDigest);
+        if (crypto.randomBytes(1).readUInt8() % 2 === 0) {
+            // TODO::Add time to response to stop user enumeration.
+        }
+        if (isPasswordValid) {
+            // TODO::Create user session and send back to user.
+            return res.status(200).send('Login Success');
+        } else {
+            return res.status(400);
+        }
+    } catch (err) {
+        if (err instanceof TypeError) {
+            return handleClientError(req, res, 400, 'Bad Request', err.message);
+        } else {
+            return handleServerError(req, res, 500, 'Error Occurred', err.message);
+        }
+    }
 });
 
 module.exports = router;
