@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const uniqid = require('uniqid');
 const crypto = require('crypto');
 const { User } = require('../models/User');
+const { createSession } = require('../utils/SessionHandler');
 const { handleClientError, handleServerError } = require('../utils/ErrorHandler');
 
 const saltRounds = 12;
@@ -71,18 +72,22 @@ router.put('/:uid', async(req, res) => {
 router.post('/signup', async (req, res) => {
     try {
         const { firstName, lastName, email, username, password } = req.body;
+
+        // Generate a uniqid that has not been used already.
         let uid;
         do {
             uid = uniqid();
         } while (await User.countDocuments({ uid, }) > 0);
         
+        // Hash password and create new user.
         const passwordDigest = await bcrypt.hash(password, saltRounds);
         const newUser = new User({ uid, firstName, lastName, email, username, passwordDigest, });
-        newUser.save((err) => {
-            if (err) return handleServerError(req, res, 500, err, err.message);
-            else return res.sendStatus(200);
-        });
-        // TODO::Create User Session and save as cookie.
+        const newUserDoc = await newUser.save();
+
+        // Create new user session and send as cookie.
+        const newSession = await createSession(newUserDoc.uid);
+        return res.cookie('sid', newSession.sid).sendStatus(200);
+        
     } catch (err) {
         if (err instanceof TypeError) {
             return handleClientError(req, res, 400, 'Bad Request', err.message);
@@ -104,8 +109,8 @@ router.post('/login', async (req, res) => {
         }
 
         if (isPasswordValid) {
-            // TODO::Create user session and send back to user.
-            return res.status(200).send('Login Success');
+            const newSession = await createSession(userDoc.uid);
+            return res.cookie('sid', newSession.sid).status(200).send('Login Success');
         } else {
             return res.status(400);
         }
