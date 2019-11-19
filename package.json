@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "debug": "nodemon --inspect=9090 src/server.js",
     "lint": "eslint .",
     "lint-fix": "eslint --fix .",
     "test": "echo \"Error: no test specified\" && exit 1"
