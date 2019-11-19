@@ -9,11 +9,6 @@ const { handleClientError, handleServerError } = require('../utils/ErrorHandler'
 
 const saltRounds = 12;
 
-router.use((req, res, next) => {
-    console.log('User Router Accessed');
-    next();
-});
-
 // FIXME::Development route, Remove for production
 router.get('/all', (req, res) => {
     User.find({}, (err, data) => {
@@ -101,18 +96,24 @@ router.post('/login', async (req, res) => {
     try {
         const { email, password, } = req.body;
         const userDoc = await User.findOne({ email, });
-        const isPasswordValid = await bcrypt.compare(password, userDoc.passwordDigest);
-
+        
         // Randomly wait a set time to help prevent user enumeration.
         if (crypto.randomBytes(1).readUInt8() % 2 === 0) {
-            await new Promise((resolve) => { setTimeout(resolve, 300); });
+            await new Promise((resolve) => { setTimeout(resolve, Math.random() * (300 - 100) + 100); });
         }
+        if (!userDoc) {
+            await new Promise((resolve) => { setTimeout(resolve, Math.random() * (400 - 350) + 350); });
+            return res.sendStatus(401);
+        }
+        const isPasswordValid = await bcrypt.compare(password, userDoc.passwordDigest);
+
+        
 
         if (isPasswordValid) {
             const newSession = await createSession(userDoc.uid);
             return res.cookie('sid', newSession.sid).status(200).send('Login Success');
         } else {
-            return res.status(400);
+            return res.sendStatus(401);
         }
     } catch (err) {
         if (err instanceof TypeError) {
