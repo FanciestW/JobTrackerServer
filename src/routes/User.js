@@ -81,7 +81,8 @@ router.post('/signup', async (req, res) => {
 
         // Create new user session and send as cookie.
         const newSession = await createSession(newUserDoc.uid);
-        return res.cookie('sid', newSession.sid).sendStatus(200);
+        const hashedSid = await bcrypt.hash(newSession.sid, saltRounds);
+        return res.cookie('sid', hashedSid).sendStatus(200);
         
     } catch (err) {
         if (err instanceof TypeError) {
@@ -111,7 +112,8 @@ router.post('/login', async (req, res) => {
 
         if (isPasswordValid) {
             const newSession = await createSession(userDoc.uid);
-            return res.cookie('sid', newSession.sid).status(200).send('Login Success');
+            const hashedSid = await bcrypt.hash(newSession.sid, saltRounds);
+            return res.cookie('sid', hashedSid).status(200).send('Login Success');
         } else {
             return res.sendStatus(401);
         }

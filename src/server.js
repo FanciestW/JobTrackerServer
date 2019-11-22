@@ -1,5 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 const mongoose = require('mongoose');
 const { handleClientError, handleServerError } = require('./utils/ErrorHandler');
@@ -7,6 +9,12 @@ require('dotenv').config();
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cors());
+const cookieOptions = {
+    httpOnly: true,
+    secure: true,
+};
+app.use(cookieParser(process.env.COOKIE_SECRET || undefined, cookieOptions));
 
 app.use('/api/user', require('./routes/User'));
 
