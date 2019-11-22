@@ -2,9 +2,9 @@ const { UserSession } = require('../models/UserSession');
 const uniqid = require('uniqid');
 
 async function checkSession(sid) {
-    // TODO::Check session validity.
-    UserSession.countDocuments({});
-    await UserSession.find({ sid, });
+  // TODO::Check session validity.
+  UserSession.countDocuments({});
+  await UserSession.find({ sid, });
 }
 
 /**
@@ -14,7 +14,7 @@ async function checkSession(sid) {
  * @returns {boolean} Returns true if sessionID is conducting valid action. False otherwise.
  */
 async function checkSessionAction(sid, uid) {
-    // TODO::Check session action validity
+  // TODO::Check session action validity
 }
 
 /**
@@ -23,11 +23,11 @@ async function checkSessionAction(sid, uid) {
  * @returns {UserSession} New user session object created for the user.
  */
 async function createSession(uid) {
-    let sid;
-    do {
-        sid = uniqid();
-    } while (await UserSession.countDocuments({ sid, }) > 0); 
-    return await UserSession({ sid, uid }).save();
+  let sid;
+  do {
+    sid = uniqid();
+  } while (await UserSession.countDocuments({ sid, }) > 0); 
+  return await UserSession({ sid, uid }).save();
 }
 
 module.exports = { checkSession, createSession };

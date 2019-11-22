@@ -9,12 +9,12 @@ const chalk = require('chalk');
  * @param {*} logger Winston logger object to log to.
  */
 function handleServerError(_req, res, statusCode=500, error='', errorMessage='', logger=undefined) {
-    if (logger) logger.log({ level: 'error', error, errorMessage });
-    if (statusCode < 500 || statusCode > 599) statusCode = 500;
-    return res.status(statusCode).send({
-        error,
-        errorMessage,
-    });
+  if (logger) logger.log({ level: 'error', error, errorMessage });
+  if (statusCode < 500 || statusCode > 599) statusCode = 500;
+  return res.status(statusCode).send({
+    error,
+    errorMessage,
+  });
 }
 
 /**
@@ -26,12 +26,12 @@ function handleServerError(_req, res, statusCode=500, error='', errorMessage='',
  * @param {*} logger Winston logger object to log to.
  */
 function handleClientError(_req, res, statusCode=400, error='', errorMessage='', logger=undefined) {
-    if (logger) logger.log({ level: 'error', error, errorMessage });
-    if (statusCode < 400 || statusCode > 499) statusCode = 400;
-    return res.status(statusCode).send({
-        error,
-        errorMessage,
-    });
+  if (logger) logger.log({ level: 'error', error, errorMessage });
+  if (statusCode < 400 || statusCode > 499) statusCode = 400;
+  return res.status(statusCode).send({
+    error,
+    errorMessage,
+  });
 }
 
 /**
@@ -39,7 +39,7 @@ function handleClientError(_req, res, statusCode=400, error='', errorMessage='',
  * @param {string} message Message to console log.
  */
 function consoleError(message) {
-    console.log(chalk.red(message));
+  console.log(chalk.red(message));
 }
 
 module.exports = { handleServerError, handleClientError, consoleError };
