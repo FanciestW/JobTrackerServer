@@ -35,10 +35,6 @@ mongoose.connect(mongodbUri, mongodbOptions, (err) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
 app.get('/api', (req, res) => {
     return handleClientError(req, res, 400, 'Bad request', 'Please try again');
 });
@@ -51,6 +47,11 @@ app.get('/status', (req, res) => {
     } else {
         return handleServerError(req, res, 500, 'Server is not ready', 'Please try again later.');
     }
+});
+
+// Send back the website
+app.get('/*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(process.env.PORT || 8080, () => console.log(`Server Online on Port ${process.env.PORT || 8080}`));
