@@ -2,7 +2,14 @@ const express = require('express');
 const router = express.Router();
 const { JobApplication } = require('../models/JobApplication');
 const { UserSession } = require('../models/UserSession');
-const { handleServerError } = require('../utils/ErrorHandler');
+const { handleServerError, handleUnauthorizedError } = require('../utils/ErrorHandler');
+
+router.use((req, res, next) => {
+  if (!req.signedCookies.sid && process.env.ENV != 'DEV') {
+    return handleUnauthorizedError(req, res);
+  }
+  next();
+});
 
 router.get('/all', async (req, res) => {
   try {

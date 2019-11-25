@@ -34,6 +34,11 @@ function handleClientError(_req, res, statusCode=400, error='', errorMessage='',
   });
 }
 
+function handleUnauthorizedError(req, res, logger=undefined) {
+  if (logger) logger.log({ level: 'warn', error: 'Unauthorized Request', request: req,});
+  return res.sendStatus(401);
+}
+
 /**
  * Console logs with red chalk.
  * @param {string} message Message to console log.
@@ -42,4 +47,4 @@ function consoleError(message) {
   console.log(chalk.red(message));
 }
 
-module.exports = { handleServerError, handleClientError, consoleError };
+module.exports = { handleServerError, handleClientError, handleUnauthorizedError, consoleError };
