@@ -1,16 +1,15 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const { UserSchema } = require('./User');
 
 const JobApplicationSchema = new Schema({
-  jobAppId: Schema.ObjectId,
-  userId: { type: Schema.Types.ObjectId, ref: UserSchema },
-  title: String,
-  company: String,
-  status: String,
-  appliedDate: Date,
-  lastUpdatedDate: Date,
-  priority: String,
+  jobAppId: { type: Schema.ObjectId },
+  uid: { type: String, required: true },
+  title: { type: String },
+  company: { type: String },
+  status: { type: String },
+  appliedDate: { type: Date, default: null },
+  lastUpdatedDate: { type: Date, default: Date.now },
+  priority: { type: Number, default: 1 }, // A number from 0-3
 });
 
 module.exports = { JobApplication: mongoose.model('JobApplication', JobApplicationSchema), JobApplicationSchema, };

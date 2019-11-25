@@ -1,20 +1,15 @@
 const { UserSession } = require('../models/UserSession');
 const uniqid = require('uniqid');
 
-async function checkSession(sid) {
-  // TODO::Check session validity.
-  UserSession.countDocuments({});
-  await UserSession.find({ sid, });
-}
-
 /**
- * Given a user's sessionID, check if action is allowed.
+ * Check if a sessionID validity and optional check against a userID.
  * @param {string} sid sessionID to run check on.
- * @param {string} uid userID of the user to check against.
- * @returns {boolean} Returns true if sessionID is conducting valid action. False otherwise.
+ * @param {string} uid [Optional] userID of the user to check against.
+ * @returns {boolean} Returns true if sessionID is valid. False otherwise.
  */
-async function checkSessionAction(sid, uid) {
-  // TODO::Check session action validity
+async function checkSession(sid, uid=undefined) {
+  const session = await UserSession.find({ sid, uid, });
+  return !!session;
 }
 
 /**
@@ -30,4 +25,15 @@ async function createSession(uid) {
   return await UserSession({ sid, uid }).save();
 }
 
-module.exports = { checkSession, createSession };
+/**
+ * Deletes a Session
+ * @param {string} sid SessionID of the session to delete.
+ * @returns {boolean} If successful deletion, return true. False otherwise.
+ */
+async function deleteSession(sid) {
+  const res = await UserSession.deleteOne({ sid, });
+  console.log(res);
+  return true;
+}
+
+module.exports = { checkSession, createSession, deleteSession };

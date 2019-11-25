@@ -10,13 +10,10 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
-const cookieOptions = {
-  httpOnly: true,
-  secure: true,
-};
-app.use(cookieParser(process.env.COOKIE_SECRET || undefined, cookieOptions));
+app.use(cookieParser(process.env.COOKIE_SECRET || undefined));
 
 app.use('/api/user', require('./routes/User'));
+app.use('/api/application', require('./routes/JobApplication'));
 
 const mongodbUri = process.env.MONGO_URI || 'mongodb://localhost:27017/test';
 const mongodbOptions = {

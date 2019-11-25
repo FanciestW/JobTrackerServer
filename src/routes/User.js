@@ -9,6 +9,11 @@ const { handleClientError, handleServerError } = require('../utils/ErrorHandler'
 
 const saltRounds = 12;
 
+const cookieOptions = {
+  httpOnly: true,
+  signed: true,
+};
+
 // FIXME::Development route, Remove for production
 router.get('/all', (req, res) => {
   User.find({}, (err, data) => {
@@ -81,7 +86,7 @@ router.post('/signup', async (req, res) => {
 
     // Create new user session and send as cookie.
     const newSession = await createSession(newUserDoc.uid);
-    return res.cookie('sid', newSession.sid).sendStatus(200);
+    return res.cookie('sid', newSession.sid, cookieOptions).sendStatus(200);
         
   } catch (err) {
     if (err instanceof TypeError) {
@@ -109,7 +114,7 @@ router.post('/login', async (req, res) => {
 
     if (isPasswordValid) {
       const newSession = await createSession(userDoc.uid);
-      return res.cookie('sid', newSession.sid).status(200).send('Login Success');
+      return res.cookie('sid', newSession.sid, cookieOptions).status(200).send('Login Success');
     } else {
       return res.sendStatus(401);
     }
