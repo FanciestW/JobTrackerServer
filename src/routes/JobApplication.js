@@ -5,7 +5,7 @@ const { UserSession } = require('../models/UserSession');
 const { handleServerError, handleUnauthorizedError } = require('../utils/ErrorHandler');
 
 router.use((req, res, next) => {
-  if (!req.signedCookies.sid && process.env.ENV != 'DEV') {
+  if (!req.signedCookies.sid && process.env.ENV !== 'DEV') {
     return handleUnauthorizedError(req, res);
   }
   next();
@@ -34,34 +34,37 @@ router.post('/new', async (req, res) => {
   }
 });
 
-// FIXME::For Developement only.
-router.post('/dev/new', async (req, res) => {
-  try {
-    const { uid, title, company, status, appliedDate, lastUpdatedDate, priority } = req.body;
-    const newApplication = await JobApplication({
-      uid,
-      title,
-      company,
-      status,
-      appliedDate,
-      lastUpdatedDate,
-      priority,
-    }).save();
-    return res.status(200).send(JSON.stringify(newApplication));
-  } catch (err) {
-    return handleServerError(req, res, 500, 'DEV: POST New Job Application Error', err);
-  }
-});
+if (process.env.ENV === 'DEV') {
 
-// FIXME::DEV, overrides session and get's user job applications.
-router.get('/:uid', async (req, res) => {
-  try {
-    const uid = req.params.uid;
-    const jobApplications = await JobApplication.find({ uid, });
-    return res.status(200).send(JSON.stringify({ jobApplications, }));
-  } catch (err) {
-    return handleServerError(req, res, 500, 'GET user Job Applications Error', err);
-  }
-});
+  // NOTE::For Developement only.
+  router.post('/dev/new', async (req, res) => {
+    try {
+      const { uid, title, company, status, appliedDate, lastUpdatedDate, priority } = req.body;
+      const newApplication = await JobApplication({
+        uid,
+        title,
+        company,
+        status,
+        appliedDate,
+        lastUpdatedDate,
+        priority,
+      }).save();
+      return res.status(200).send(JSON.stringify(newApplication));
+    } catch (err) {
+      return handleServerError(req, res, 500, 'DEV: POST New Job Application Error', err);
+    }
+  });
+
+  // NOTE::DEV, overrides session and get's user job applications.
+  router.get('/:uid', async (req, res) => {
+    try {
+      const uid = req.params.uid;
+      const jobApplications = await JobApplication.find({ uid, });
+      return res.status(200).send(JSON.stringify({ jobApplications, }));
+    } catch (err) {
+      return handleServerError(req, res, 500, 'DEV: GET user Job Applications Error', err);
+    }
+  });
+}
 
 module.exports = router;
