@@ -16,9 +16,21 @@ router.get('/all', async (req, res) => {
     const sid = req.signedCookies.sid;
     const session = await UserSession.findOne({ sid, }, { _id: 0, sid: 1, uid: 1});
     const jobApplications = await JobApplication.find({ uid: session.uid, });
-    return res.status(200).send(JSON.stringify({ jobApplications, }, null, 2));
+    return res.status(200).send(JSON.stringify({ jobApplications, }));
   } catch (err) {
     return handleServerError(req, res, 500, 'Job Application GET all Error', err);
+  }
+});
+
+router.post('/new', async (req, res) => {
+  try {
+    const { title, company, status, appliedDate, lastUpdatedDate, priority } = req.body;
+    const sid = req.signedCookies.sid;
+    const session = await UserSession.findOne({ sid, }, { _id: 0, sid: 1, uid: 1});
+    const jobApplication = await JobApplication.create({ uid: session.uid, title, company, status, appliedDate, lastUpdatedDate, priority });
+    return res.status(200).send(JSON.stringify({ jobApplication, }));
+  } catch (err) {
+    return handleServerError(req, res, 500, 'POST New Job Application Error', err);
   }
 });
 
