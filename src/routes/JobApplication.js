@@ -38,6 +38,21 @@ router.post('/new', async (req, res) => {
   }
 });
 
+router.post('/update', async (req, res) => {
+  const { _id, title, company, status, appliedDate, priority } = req.body;
+  const jobApplicationLookup = await JobApplication.findById(_id,);
+  if (req.user.uid !== jobApplicationLookup.uid) {
+    return handleUnauthorizedError(req, res);
+  } else {
+    const jobApplication = await JobApplication.findByIdAndUpdate(
+      _id,
+      { title, company, status, appliedDate, lastUpdatedDate: Date.now(), priority },
+      { new: true }
+    );
+    return res.status(200).send(JSON.stringify({ jobApplication, }));
+  }
+});
+
 if (process.env.ENV === 'DEV') {
 
   // NOTE::For Developement only.

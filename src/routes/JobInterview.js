@@ -39,12 +39,18 @@ router.post('/new', async (req, res) => {
 });
 
 router.post('/update', async (req, res) => {
-  const { _id, uid, title, company, status, date, lastUpdatedDate, type, linkedJobApplication } = req.body;
-  const jobInterview = await JobInterview.updateOne(
-    { _id, },
-    { uid, title, company, status, date, lastUpdatedDate, type, linkedJobApplication }
-  );
-  return res.status(200).send(JSON.stringify({ jobInterview, }));
+  const { _id, title, company, status, date, type, linkedJobApplication } = req.body;
+  const jobInterviewLookup = await JobInterview.findById(_id,);
+  if (req.user.uid !== jobInterviewLookup.uid) {
+    return handleUnauthorizedError(req, res);
+  } else {
+    const jobInterview = await JobInterview.findByIdAndUpdate(
+      _id,
+      { title, company, status, date, lastUpdatedDate: Date.now(), type, linkedJobApplication },
+      { new: true }
+    );
+    return res.status(200).send(JSON.stringify({ jobInterview, }));
+  }
 });
 
 if (process.env.ENV === 'DEV') {
