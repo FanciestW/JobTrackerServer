@@ -1,21 +1,27 @@
 const express = require('express');
 const router = express.Router();
 const { JobApplication } = require('../models/JobApplication');
-const { UserSession } = require('../models/UserSession');
+const { getSessionUser } = require('../utils/SessionHandler');
 const { handleServerError, handleUnauthorizedError } = require('../utils/ErrorHandler');
 
-router.use((req, res, next) => {
+router.use( async(req, res, next) => {
   if (!req.signedCookies.sid && process.env.ENV !== 'DEV') {
     return handleUnauthorizedError(req, res);
+  } else {
+    const sid = req.signedCookies.sid;
+    const user = await getSessionUser(sid);
+    if (user) {
+      req.user = user;
+    } else {
+      return handleUnauthorizedError(req, res);
+    }
   }
   next();
 });
 
 router.get('/all', async (req, res) => {
   try {
-    const sid = req.signedCookies.sid;
-    const session = await UserSession.findOne({ sid, }, { _id: 0, sid: 1, uid: 1});
-    const jobApplications = await JobApplication.find({ uid: session.uid, });
+    const jobApplications = await JobApplication.find({ uid: req.user.uid, });
     return res.status(200).send(JSON.stringify({ jobApplications, }));
   } catch (err) {
     return handleServerError(req, res, 500, 'Job Application GET all Error', err);
@@ -25,9 +31,7 @@ router.get('/all', async (req, res) => {
 router.post('/new', async (req, res) => {
   try {
     const { title, company, status, appliedDate, lastUpdatedDate, priority } = req.body;
-    const sid = req.signedCookies.sid;
-    const session = await UserSession.findOne({ sid, }, { _id: 0, sid: 1, uid: 1});
-    const jobApplication = await JobApplication.create({ uid: session.uid, title, company, status, appliedDate, lastUpdatedDate, priority });
+    const jobApplication = await JobApplication.create({ uid: req.user.uid, title, company, status, appliedDate, lastUpdatedDate, priority });
     return res.status(200).send(JSON.stringify({ jobApplication, }));
   } catch (err) {
     return handleServerError(req, res, 500, 'POST New Job Application Error', err);

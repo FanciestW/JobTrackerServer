@@ -9,6 +9,7 @@ const uniqid = require('uniqid');
  */
 async function getSessionUser(sid) {
   const session = await UserSession.findOne({ sid, }, { _id: 0, uid: 1, sid: 1});
+  if (!session) return undefined;
   return await User.findOne({ uid: session.uid });
 }
 
