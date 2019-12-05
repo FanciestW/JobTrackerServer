@@ -4,14 +4,16 @@ const bcrypt = require('bcrypt');
 const uniqid = require('uniqid');
 const crypto = require('crypto');
 const { User } = require('../models/User');
-const { createSession } = require('../utils/SessionHandler');
-const { handleClientError, handleServerError } = require('../utils/ErrorHandler');
+const { createSession, deleteSession } = require('../utils/SessionHandler');
+const { handleClientError, handleServerError, handleUnauthorizedError } = require('../utils/ErrorHandler');
 
 const saltRounds = 12;
 
 const cookieOptions = {
   httpOnly: true,
   signed: true,
+  expires: Date.now() + 3600,
+  maxAge: Date.now() + 3600 * 1000,
 };
 
 // FIXME::Development route, Remove for production
@@ -124,6 +126,22 @@ router.post('/login', async (req, res) => {
     } else {
       return handleServerError(req, res, 500, 'Error Occurred', err.message);
     }
+  }
+});
+
+router.post('/logout', async (req, res) => {
+  try {
+    if (!req.signedCookies.sid && process.env.ENV !== 'DEV') {
+      return handleUnauthorizedError(req, res);
+    } else {
+      const sid = req.signedCookies.sid;
+      await deleteSession(sid);
+      // res.cookie('sid', {expires: Date.now()});
+      res.clearCookie('sid');
+      res.sendStatus(200);
+    }
+  } catch (err) {
+    return handleServerError(req, res, 500, 'Error Occurred', err.message);
   }
 });
 
