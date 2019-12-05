@@ -15,6 +15,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET || undefined));
 app.use('/api/user', require('./routes/User'));
 app.use('/api/application', require('./routes/JobApplication'));
 app.use('/api/interview', require('./routes/JobInterview'));
+app.use('/api/jobs', require('./routes/Jobs'));
 
 const mongodbUri = process.env.MONGO_URI || 'mongodb://localhost:27017/test';
 const mongodbOptions = {
